@@ -5,6 +5,6 @@ account: cynthiaachung
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 10536828
-bundleId: 7931861
+bundleId: 7932501
 url: https://cynthiaachung.shinyapps.io/worldhappiness/
 version: 1

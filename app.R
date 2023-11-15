@@ -34,15 +34,15 @@ ui = fluidPage(
                tabPanel("World Overview",
 
                         # page header
-                        h3("World Overview"),
+                        h3("World Overview", style = "font-family: arial;"),
 
                         # page instructions and description
                         fluidRow(
                             column(12,
-                                   p(strong("Description:"),
+                                   p(strong("Description:",),
                                      "The intention of this page is to visualize the variation of happiness scores across the world, over the years. This is useful because it allows the user to easily compare and analyze a large amount of data."),
-                                   p(strong("Instructions:"),
-                                     "Drag the slider to your year of interest to generate the corresponding choropleth map. This map visualizes the variation of happiness scores across the world."),
+                                   p(strong("Instructions:", style = "font-family: arial;"),
+                                     "Drag the slider to your year of interest to generate the corresponding choropleth map. This map visualizes the variation of happiness scores across the world. The range of the happiness score is 0-10, with 0 being the lowest score and 10 being the highest score."),
                                    hr())
                         ),
 
@@ -61,13 +61,15 @@ ui = fluidPage(
                                    plotOutput("map"))
                         ),
 
-                        # citation for data
+                        # explanation of score and data source
                         fluidRow(
                             column(12,
                                    hr(),
+                                   p(strong("Note:"),
+                                     "The happiness score was derived by asking respondants to evaluate their current life as a whole using the mental image of a ladder, with the best possible life for them as a 10 and worst possible as a 0. Each respondent provides a numerical response on this scale, referred to as the Cantril ladder."),
                                    p(strong("Data Source:"),
                                      "Helliwell, J. F., Layard, R., Sachs, J. D., De Neve, J.-E., Aknin, L. B., & Wang, S. (Eds.). (2022). World Happiness Report 2022. New York: Sustainable Development Solutions Network."),
-                                   )
+                            )
                         ),
                ),
 
@@ -75,7 +77,7 @@ ui = fluidPage(
                tabPanel("By Country",
 
                         # page header
-                        h3("By Country"),
+                        h3("By Country", style = "font-family: arial;"),
 
                         # page instructions and description
                         fluidRow(
@@ -96,14 +98,16 @@ ui = fluidPage(
                                                selected = "Canada"), # default selection
                             ),
                             # creates line graph
-                            column(9, align = "center",
+                            column(9,
                                    plotOutput("linegraph")),
                         ),
 
-                        # citation for data
+                        # explanation of score and data source
                         fluidRow(
                             column(12,
                                    hr(),
+                                   p(strong("Note:"),
+                                     "The happiness score was derived by asking respondants to evaluate their current life as a whole using the mental image of a ladder, with the best possible life for them as a 10 and worst possible as a 0. Each respondent provides a numerical response on this scale, referred to as the Cantril ladder."),
                                    p(strong("Data Source:"),
                                      "Helliwell, J. F., Layard, R., Sachs, J. D., De Neve, J.-E., Aknin, L. B., & Wang, S. (Eds.). (2022). World Happiness Report 2022. New York: Sustainable Development Solutions Network."),
                             )
@@ -114,13 +118,13 @@ ui = fluidPage(
                tabPanel("Custom Dataset",
 
                         # page header
-                        h3("Custom Dataset"),
+                        h3("Custom Dataset", style = "font-family: arial;"),
 
                         # page instructions and description
                         fluidRow(
                             column(12,
                                    p(strong("Description:"),
-                                     "The intention of this page is to allow the user to create their own custom data set of happiness scores. This is useful because it allows the user to see the raw data in a more digestible format."),
+                                     "The intention of this page is to allow the user to create their own custom data set of happiness scores. Recall that the range of the happiness score is 0-10, with 0 being the lowest score and 10 being the highest score. This is useful because it allows the user to see the raw data in a more digestible format."),
                                    p(strong("Instructions:"),
                                      "Please select your year range and country/countries of interest. Once you are finished, press the 'Filter' button to generate your custom dataset."),
                                    hr())
@@ -151,10 +155,12 @@ ui = fluidPage(
                                    dataTableOutput("data"))
                         ),
 
-                        # citation for data
+                        # explanation of score and data source
                         fluidRow(
                             column(12,
                                    hr(),
+                                   p(strong("Note:"),
+                                     "The happiness score was derived by asking respondants to evaluate their current life as a whole using the mental image of a ladder, with the best possible life for them as a 10 and worst possible as a 0. Each respondent provides a numerical response on this scale, referred to as the Cantril ladder."),
                                    p(strong("Data Source:"),
                                      "Helliwell, J. F., Layard, R., Sachs, J. D., De Neve, J.-E., Aknin, L. B., & Wang, S. (Eds.). (2022). World Happiness Report 2022. New York: Sustainable Development Solutions Network."),
                             )
@@ -194,8 +200,9 @@ server <- function(input, output) {
             geom_point(size = 2) + # point size
             ggtitle(paste("The Happiness Score of", input$country, "Over the Years")) + # graph title
             scale_colour_gradientn(colours = palette) + # gradient colour scheme
-            labs(x = "Year", y = "Happiness Score", colour = " ") + # adjusts axis labels, legend title
-            scale_x_continuous(breaks = seq(min, max, by = 1)) # specifies x-axis increments
+            labs(x = "Year", y = "Happiness Score", colour = "Happiness Score") + # adjusts axis labels, legend title
+            scale_x_continuous(breaks = seq(min, max, by = 1)) + # specifies x-axis increments
+            ylim(0, 10)
     })
 
     # creates interactive data table
