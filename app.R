@@ -42,7 +42,7 @@ ui = fluidPage(
                                    p(strong("Description:",),
                                      "The intention of this page is to visualize the variation of happiness scores across the world, over the years. This is useful because it allows the user to easily compare and analyze a large amount of data."),
                                    p(strong("Instructions:", style = "font-family: arial;"),
-                                     "Drag the slider to your year of interest to generate the corresponding choropleth map. This map visualizes the variation of happiness scores across the world. The range of the happiness score is 0-10, with 0 being the lowest score and 10 being the highest score."),
+                                     "Drag the slider to your year of interest to generate the corresponding choropleth map. This map visualizes the variation of happiness scores across the world."),
                                    hr())
                         ),
 
@@ -124,7 +124,7 @@ ui = fluidPage(
                         fluidRow(
                             column(12,
                                    p(strong("Description:"),
-                                     "The intention of this page is to allow the user to create their own custom data set of happiness scores. Recall that the range of the happiness score is 0-10, with 0 being the lowest score and 10 being the highest score. This is useful because it allows the user to see the raw data in a more digestible format."),
+                                     "The intention of this page is to allow the user to create their own custom data set of happiness scores. This is useful because it allows the user to see the raw data in a more digestible format."),
                                    p(strong("Instructions:"),
                                      "Please select your year range and country/countries of interest. Once you are finished, press the 'Filter' button to generate your custom dataset."),
                                    hr())
