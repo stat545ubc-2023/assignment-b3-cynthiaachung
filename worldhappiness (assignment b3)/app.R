@@ -1,19 +1,19 @@
+
 # set up ------------------------------------------------------------------
 library(ggplot2)
 library(dplyr)
 library(maps)
-library(viridis)
+library(wesanderson)
 library(rsconnect)
-library(shinythemes)
 
 # preparing data ----------------------------------------------------------
 
-# imports child mortality data
-child.mortality <- read.csv("data/shiny_data_childmortalityrates.csv") %>% # reads csv file from local folder
+# imports world happiness score data
+world.happiness <- read.csv("data/shiny_data_worldhappiness.csv") %>% # reads csv file from local folder
     # renames variables for simplicity
     rename(region = Entity,
            year = Year,
-           child.mortality = Child.mortality) %>%
+           happiness.score = Life.satisfaction.in.Cantril.Ladder..World.Happiness.Report.2022.) %>%
     # mutates variables to ensure cohesion with world.map data
     mutate(region = ifelse(region == "United States", "USA", region),
            year = as.numeric(year))
@@ -21,17 +21,14 @@ child.mortality <- read.csv("data/shiny_data_childmortalityrates.csv") %>% # rea
 # imports world map data to generate chloropeth map
 world.map <- map_data("world")
 
-# lists colour choices for viridis colour palette
-colour.viridis <- c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")
+# generates wes-anderson themed colour palette
+palette <- wes_palette("GrandBudapest2", 100, type = "continuous")
+
 
 # user interface ----------------------------------------------------------
 ui = fluidPage(
-
-    # shiny theme
-    theme = shinytheme("spacelab"),
-
     # navigation bar title
-    navbarPage("Child Mortality",
+    navbarPage("Happiness Score",
 
                # tab panel "World Overview"
                tabPanel("World Overview",
@@ -43,9 +40,9 @@ ui = fluidPage(
                         fluidRow(
                             column(12,
                                    p(strong("Description:",),
-                                     "The intention of this page is to visualize the variation of child mortality across the world, over the years. This is useful because it allows the user to easily compare and analyze a large amount of data."),
+                                     "The intention of this page is to visualize the variation of happiness scores across the world, over the years. This is useful because it allows the user to easily compare and analyze a large amount of data."),
                                    p(strong("Instructions:", style = "font-family: arial;"),
-                                     "Drag the slider to your year of interest to generate the corresponding choropleth map. This map visualizes the variation of child mortality across the world."),
+                                     "Drag the slider to your year of interest to generate the corresponding choropleth map. This map visualizes the variation of happiness scores across the world."),
                                    hr())
                         ),
 
@@ -53,12 +50,12 @@ ui = fluidPage(
                         fluidRow(
                             # creates slider for year
                             column(3,
-                                   selectInput("year", "Year", # name and label of slider
-                                               choices = unique(child.mortality$year)), # choices
-                                   selectInput("mapcolour", "Colour Palette", # name and label of selector
-                                               choices = unique(colour.viridis), # choices
-                                               selected = "viridis") # default choice
-                                   ),
+                                   sliderInput("year", "Year", # name and label of slider
+                                               min = 2004, # minimum value
+                                               max = 2020, # maximum value
+                                               value = 2010, # default value
+                                               sep = "" # removes "," for thousand places
+                                   )),
                             # creates chloropeth map
                             column(9, align = "center",
                                    plotOutput("map"))
@@ -67,16 +64,12 @@ ui = fluidPage(
                         # explanation of score and data source
                         fluidRow(
                             column(12,
-                                   hr())
-                        ),
-
-                        fluidRow(
-                            column(6, align = "left",
+                                   hr(),
                                    p(strong("Note:"),
-                                     "Child mortality is defined as the death of children under five years of age per 1000 live births.")),
-                            column(6, align = "right",
+                                     "The happiness score was derived by asking respondants to evaluate their current life as a whole using the mental image of a ladder, with the best possible life for them as a 10 and worst possible as a 0. Each respondent provides a numerical response on this scale, referred to as the Cantril ladder."),
                                    p(strong("Data Source:"),
-                                     "Based on free material from GAPMINDER.ORG, CC-BY LICENSE"))
+                                     "Helliwell, J. F., Layard, R., Sachs, J. D., De Neve, J.-E., Aknin, L. B., & Wang, S. (Eds.). (2022). World Happiness Report 2022. New York: Sustainable Development Solutions Network."),
+                            )
                         ),
                ),
 
@@ -90,22 +83,19 @@ ui = fluidPage(
                         fluidRow(
                             column(12,
                                    p(strong("Description:"),
-                                     "The intention of this page is to visualize the change in child mortality for a country of interest. This is useful because it allows the user to track changes and see trends over a period of time."),
+                                     "The intention of this page is to visualize the change in happiness scores for a country of interest. This is useful because it allows the user to track changes and see trends over a period of time."),
                                    p(strong("Instructions:"),
-                                     "Please select your country of interest to generate a graph that outlines the changes in its child mortality."),
+                                     "Please select your country of interest to generate a graph that outlines the changes in its happiness score."),
                                    hr())
                         ),
 
                         # shiny widgets
                         fluidRow(
                             # creates selector for country
-                            column(3,
+                            column(3, align = "center",
                                    selectInput("country", "Country", # name and label of selector
-                                               choices = unique(child.mortality$region), # choices
+                                               choices = unique(world.happiness$region), # choices
                                                selected = "Canada"), # default selection
-                                   selectInput("linecolour", "Colour Palette", # name and label of selector
-                                               choices = unique(colour.viridis), # choices
-                                               selected = "mako") # default selection
                             ),
                             # creates line graph
                             column(9,
@@ -115,16 +105,12 @@ ui = fluidPage(
                         # explanation of score and data source
                         fluidRow(
                             column(12,
-                                   hr())
-                        ),
-
-                        fluidRow(
-                            column(6, align = "left",
+                                   hr(),
                                    p(strong("Note:"),
-                                     "Child mortality is defined as the death of children under five years of age per 1000 live births.")),
-                            column(6, align = "right",
+                                     "The happiness score was derived by asking respondants to evaluate their current life as a whole using the mental image of a ladder, with the best possible life for them as a 10 and worst possible as a 0. Each respondent provides a numerical response on this scale, referred to as the Cantril ladder."),
                                    p(strong("Data Source:"),
-                                     "Based on free material from GAPMINDER.ORG, CC-BY LICENSE"))
+                                     "Helliwell, J. F., Layard, R., Sachs, J. D., De Neve, J.-E., Aknin, L. B., & Wang, S. (Eds.). (2022). World Happiness Report 2022. New York: Sustainable Development Solutions Network."),
+                            )
                         ),
                ),
 
@@ -138,7 +124,7 @@ ui = fluidPage(
                         fluidRow(
                             column(12,
                                    p(strong("Description:"),
-                                     "The intention of this page is to allow the user to create their own custom data set of child mortality scores. This is useful because it allows the user to see the raw data in a more digestible format."),
+                                     "The intention of this page is to allow the user to create their own custom data set of happiness scores. This is useful because it allows the user to see the raw data in a more digestible format."),
                                    p(strong("Instructions:"),
                                      "Please select your year range and country/countries of interest. Once you are finished, press the 'Filter' button to generate your custom dataset."),
                                    hr())
@@ -152,17 +138,16 @@ ui = fluidPage(
                                        p("Export a custom dataset by selecting your year(s) and countries of interest"),
                                        # creates slider for year
                                        sliderInput("data_year", "Years", # name and label of slider
-                                                   min = 1800, # minimum value
-                                                   max = 2100, # maximum value
-                                                   value = c(1900, 2000), # default range
+                                                   min = 2004, # minimum value
+                                                   max = 2020, # maximum value
+                                                   value = c(2004, 2020), # default range
                                                    sep = ""), # removes "," for thousand places
                                        # creates selector for country
                                        selectInput("data_country", "Countries", # name and label of selector
-                                                   choices = unique(child.mortality$region), # choices
+                                                   choices = unique(world.happiness$region), # choices
                                                    multiple = TRUE), # allows for multiple selections
                                        actionButton("generate", "Generate",  # name and label of button
-                                                    class = "btn-success"), # button class is "success"
-                                       downloadButton('downloadData', 'Download')
+                                                    class = "btn-success") # button class is "success"
                                    )
                             ),
                             column(9,
@@ -173,16 +158,12 @@ ui = fluidPage(
                         # explanation of score and data source
                         fluidRow(
                             column(12,
-                                   hr())
-                            ),
-
-                        fluidRow(
-                            column(6, align = "left",
+                                   hr(),
                                    p(strong("Note:"),
-                                     "Child mortality is defined as the death of children under five years of age per 1000 live births.")),
-                            column(6, align = "right",
+                                     "The happiness score was derived by asking respondants to evaluate their current life as a whole using the mental image of a ladder, with the best possible life for them as a 10 and worst possible as a 0. Each respondent provides a numerical response on this scale, referred to as the Cantril ladder."),
                                    p(strong("Data Source:"),
-                                     "Based on free material from GAPMINDER.ORG, CC-BY LICENSE"))
+                                     "Helliwell, J. F., Layard, R., Sachs, J. D., De Neve, J.-E., Aknin, L. B., & Wang, S. (Eds.). (2022). World Happiness Report 2022. New York: Sustainable Development Solutions Network."),
+                            )
                         ),
                ),
     )
@@ -194,37 +175,34 @@ server <- function(input, output) {
 
     # creates chloropeth map
     output$map = renderPlot({
-        # filters child.mortality data based on slider input
-        child.mortality <- filter(child.mortality, year==input$year)
+        # filters world.happiness data based on slider input
+        world.happiness <- filter(world.happiness, year==input$year)
         # joins with world.map data for longitude and latitude coordinates
-        child.mortality.map <- left_join(child.mortality, world.map, by = "region")
+        world.happiness.map <- left_join(world.happiness, world.map, by = "region")
         # creates ggplot
-        ggplot(child.mortality.map, aes(x = long, y = lat, fill = child.mortality, group = group)) +
+        ggplot(world.happiness.map, aes(x = long, y = lat, fill = happiness.score, group = group)) +
             geom_polygon(colour = "#F8F9F9") + # outlines countries
-            ggtitle(paste(input$year, "Child Mortality World Map")) + # map title
-            scale_fill_viridis(option = input$mapcolour) + # viridis colour scheme
-            labs(y = "Latitude", x = "Longitude", fill = "Child Mortality") # adjusts axis labels, legend title
+            ggtitle(paste(input$year, "Happiness Score World Map")) + # map title
+            scale_fill_gradientn(colours = palette) + # gradient colour scheme
+            labs(y = "Latitude", x = "Longitude", fill = "Happiness Score") # adjusts axis labels, legend title
     })
 
     # creates line graph
     output$linegraph = renderPlot({
-        # filters child.mortality data based on selector input
-        child.mortality <- filter(child.mortality, region==input$country)
+        # filters world.happiness data based on selector input
+        world.happiness <- filter(world.happiness, region==input$country)
         # creates bounds for x-axis
-        x_min <- as.numeric(min(child.mortality$year, na.rm=TRUE))
-        x_max <- as.numeric(max(child.mortality$year, na.rm=TRUE))
-        # creates bounds for y-axis
-        y_min <- as.numeric(min(child.mortality$child.mortality, na.rm=TRUE))
-        y_max <- as.numeric(max(child.mortality$child.mortality, na.rm=TRUE))
+        min <- as.numeric(min(world.happiness$year, na.rm=TRUE))
+        max <- as.numeric(max(world.happiness$year, na.rm=TRUE))
         # creates ggplot
-        ggplot(child.mortality, aes(x = year, y = child.mortality, colour = child.mortality)) +
-            geom_line(linewidth = 2) + # line size
+        ggplot(world.happiness, aes(x = year, y = happiness.score, colour = happiness.score)) +
+            geom_line(size = 2) + # line size
             geom_point(size = 2) + # point size
-            ggtitle(paste("The Child Mortality of", input$country, "Over the Years")) + # graph title
-            scale_colour_viridis(option = input$linecolour) + # viridis colour scheme
-            labs(x = "Year", y = "Child Mortality", colour = "Child Mortality") + # adjusts axis labels, legend title
-            scale_x_continuous(breaks = seq(x_min, x_max, by = 20)) + # specifies x-axis increments
-            scale_y_continuous(breaks = seq(0, y_max, by = 50))
+            ggtitle(paste("The Happiness Score of", input$country, "Over the Years")) + # graph title
+            scale_colour_gradientn(colours = palette) + # gradient colour scheme
+            labs(x = "Year", y = "Happiness Score", colour = "Happiness Score") + # adjusts axis labels, legend title
+            scale_x_continuous(breaks = seq(min, max, by = 1)) + # specifies x-axis increments
+            ylim(0, 10)
     })
 
     # creates interactive data table
@@ -234,7 +212,7 @@ server <- function(input, output) {
         # data table is only generated after button is clicked
         isolate(
             # data set
-            child.mortality %>%
+            world.happiness %>%
                 # filters for year range
                 filter(year > input$data_year[1] & year < input$data_year[2]) %>%
                 # filters for country/countries
@@ -242,19 +220,9 @@ server <- function(input, output) {
                 # renames variables for clarity
                 rename("Country" = region,
                        "Year" = year,
-                       "Child Mortality" = child.mortality)
+                       "Happiness Score" = happiness.score)
         )
     })
-
-    # creates download file
-    output$downloadData <- downloadHandler(
-        filename = function() {
-            paste("custom.childmortality.", Sys.Date(), ".csv", sep="")
-            },
-        content = function(file) {
-            write.csv(data, file)
-            }
-        )
 }
 
 # shiny application -------------------------------------------------------
