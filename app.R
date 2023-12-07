@@ -45,7 +45,7 @@ ui = fluidPage(
                                    p(strong("Description:",),
                                      "The intention of this page is to visualize the variation of child mortality across the world, over the years. This is useful because it allows the user to easily compare and analyze a large amount of data."),
                                    p(strong("Instructions:", style = "font-family: arial;"),
-                                     "Drag the slider to your year of interest to generate the corresponding choropleth map. This map visualizes the variation of child mortality across the world."),
+                                     "Please select your year of interest to generate the corresponding choropleth map. This map visualizes the variation of child mortality across the world. The default colour palette is 'viridis' from the viridis R package, but can be customized to other palettes within the package."),
                                    hr())
                         ),
 
@@ -92,7 +92,7 @@ ui = fluidPage(
                                    p(strong("Description:"),
                                      "The intention of this page is to visualize the change in child mortality for a country of interest. This is useful because it allows the user to track changes and see trends over a period of time."),
                                    p(strong("Instructions:"),
-                                     "Please select your country of interest to generate a graph that outlines the changes in its child mortality."),
+                                     "Please select your country of interest to generate a graph that outlines the changes in its child mortality. The default colour palette is 'mako' from the viridis R package, but can be customized to other palettes within the package."),
                                    hr())
                         ),
 
@@ -140,7 +140,7 @@ ui = fluidPage(
                                    p(strong("Description:"),
                                      "The intention of this page is to allow the user to create their own custom data set of child mortality scores. This is useful because it allows the user to see the raw data in a more digestible format."),
                                    p(strong("Instructions:"),
-                                     "Please select your year range and country/countries of interest. Once you are finished, press the 'Filter' button to generate your custom dataset."),
+                                     "Please select your year range and country/countries of interest. Once you are finished, press the 'Download' button to export your custom dataset as a CSV file."),
                                    hr())
                         ),
 
@@ -160,9 +160,7 @@ ui = fluidPage(
                                        selectInput("data_country", "Countries", # name and label of selector
                                                    choices = unique(child.mortality$region), # choices
                                                    multiple = TRUE), # allows for multiple selections
-                                       actionButton("generate", "Generate",  # name and label of button
-                                                    class = "btn-success"), # button class is "success"
-                                       downloadButton('downloadData', 'Download')
+                                       downloadButton('downloadData', 'Download') # name and label of button
                                    )
                             ),
                             column(9,
@@ -227,12 +225,7 @@ server <- function(input, output) {
             scale_y_continuous(breaks = seq(0, y_max, by = 50))
     })
 
-    # creates interactive data table
-    output$data = renderDataTable({
-        # button input
-        input$generate
-        # data table is only generated after button is clicked
-        isolate(
+    dataInput <- reactive({ # allows interactive data table to changes reactively to input
             # data set
             child.mortality %>%
                 # filters for year range
@@ -243,16 +236,20 @@ server <- function(input, output) {
                 rename("Country" = region,
                        "Year" = year,
                        "Child Mortality" = child.mortality)
-        )
+    })
+
+    # creates interactive data table
+    output$data = renderDataTable({
+        dataInput()
     })
 
     # creates download file
     output$downloadData <- downloadHandler(
         filename = function() {
-            paste("custom.childmortality.", Sys.Date(), ".csv", sep="")
+            paste("custom_childmortality_", Sys.Date(), ".csv", sep="")
             },
         content = function(file) {
-            write.csv(data, file)
+            write.csv(dataInput(), file)
             }
         )
 }

@@ -1,0 +1,13 @@
+name: childmortality
+title: childmortality
+username: cynthiaachung
+account: cynthiaachung
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 10741118
+bundleId: 8018950
+url: https://cynthiaachung.shinyapps.io/childmortality/
+version: 1
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: worldhappiness (assignment b3)/app.R|worldhappiness (assignment b3)/data/shiny_data_worldhappiness.csv|worldhappiness (assignment b3)/README.md
